@@ -1,0 +1,2 @@
+flask
+git+https://github.com/nils-huysmans/moviepy.git@v1.0.x

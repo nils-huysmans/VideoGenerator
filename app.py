@@ -29,7 +29,7 @@ def get_emotions_for_character(character):
 def create_text_bubble(text, position):
     """Create a text bubble with the specified text and position."""
     bubble_size = (len(text)*15, 50)
-    bubble_clip = TextClip(text, fontsize=20, color='black', bg_color='white', size=bubble_size, print_cmd=True)
+    bubble_clip = TextClip(text, fontsize=20, color='black', bg_color='white', size=bubble_size, font='Liberation-Sans', print_cmd=True)
     bubble_clip = bubble_clip.set_duration(1 + 0.1*len(text)).set_position(position)
     return bubble_clip
 
