@@ -22,9 +22,9 @@ This guide will help you run the Video Generator application using Docker Deskto
    - On Linux: Use your preferred terminal application
 
 3. In the terminal, copy and paste the following command, then press Enter:
-
+```
 docker run -p 5000:5000 nilshuysmans/suicide-prevention-video-generator
-
+```
 4. Wait for the message that says the application is running. This might take a few minutes the first time.
 
 5. Open your web browser and go to: [http://localhost:5000](http://localhost:5000)
