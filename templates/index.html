@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suicide Prevention Scene Generator</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --hover-color: #3a7ac8;
+            --secondary-color: #f0f0f0;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+    
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+    
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+    
+        .form-group {
+            margin-bottom: 20px;
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    
+        select, textarea, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+    
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23333' viewBox='0 0 12 12'%3E%3Cpath d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+    
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+    
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    
+        button:hover {
+            background-color: #3a7ac8;
+        }
+    
+        .dialogue-entry {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+    
+        .dialogue-entry h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    
+        .remove-dialogue {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    
+        .remove-dialogue:hover {
+            background-color: var(--hover-color);
+        }
+    
+        .dialogue-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+    
+        .dialogue-column {
+            width: 48%;
+        }
+    
+        #loading {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+        }
+    
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .add-dialogue {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            line-height: 50px;
+            padding: 0;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .add-dialogue:hover {
+            background-color: var(--hover-color);;
+        }
+
+        .add-dialogue:active {
+            transform: scale(0.95);
+        }
+
+        .generate-video {
+            width: 50%;
+            background-color: var(--primary-color);
+        }
+
+        .generate-video:hover {
+            background-color: var(--hover-color);;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Suicide Prevention Scene Generator</h1>
+
+        <form id="animation-form" action="/generate_video" method="post" onsubmit="showLoading()">
+            <div class="form-group">
+                <label for="character1-select">Select Character 1:</label>
+                <select id="character1-select" name="character1" onchange="updateDialogueLabels()">
+                    {% for character in characters %}
+                        <option value="{{ character }}">{{ character }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="character2-select">Select Character 2:</label>
+                <select id="character2-select" name="character2" onchange="updateDialogueLabels()">
+                    {% for character in characters %}
+                        <option value="{{ character }}">{{ character }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="background-select">Select Background:</label>
+                <select id="background-select" name="background">
+                    {% for background in backgrounds %}
+                        <option value="{{ background }}">{{ background }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div id="dialogue-list">
+                <!-- Dialogue entries will be appended here -->
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="add-dialogue" onclick="addDialogueEntry()" aria-label="Add Dialogue Entry">+</button>
+                <button type="submit" class="generate-video">Generate Video</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="loading">Generating video, please wait...</div>
+    <script>
+        const emotions = {{ emotions | tojson }};
+        let dialogueCounter = 0;
+        
+        function addDialogueEntry() {
+            dialogueCounter++;
+            const dialogueList = document.getElementById('dialogue-list');
+            const character1 = document.getElementById('character1-select').value;
+            const character2 = document.getElementById('character2-select').value;
+            const entry = document.createElement('div');
+            entry.className = 'dialogue-entry';
+            entry.dataset.dialogueId = dialogueCounter;
+
+            // Get the emotions from the previous entry, if it exists
+            let prevEmotion1 = '';
+            let prevEmotion2 = '';
+            if (dialogueCounter > 1) {
+                const prevEntry = dialogueList.lastElementChild;
+                prevEmotion1 = prevEntry.querySelector('select[name="emotion1[]"]').value;
+                prevEmotion2 = prevEntry.querySelector('select[name="emotion2[]"]').value;
+            }
+
+            entry.innerHTML = `
+                <h3>Dialogue ${dialogueCounter}</h3>
+                <button type="button" class="remove-dialogue" onclick="removeDialogueEntry(${dialogueCounter})">X</button>
+                <div class="dialogue-row">
+                    <div class="dialogue-column">
+                        <div class="form-group">
+                            <label>${character1} Dialogue:</label>
+                            <textarea name="dialogue1[]"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>${character1} Emotion:</label>
+                            <select name="emotion1[]">
+                                ${emotions[character1].map(emotion => `<option value="${emotion.toLowerCase()}"${emotion.toLowerCase() === prevEmotion1 ? ' selected' : ''}>${emotion}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="dialogue-column">
+                        <div class="form-group">
+                            <label>${character2} Dialogue:</label>
+                            <textarea name="dialogue2[]"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>${character2} Emotion:</label>
+                            <select name="emotion2[]">
+                                ${emotions[character2].map(emotion => `<option value="${emotion.toLowerCase()}"${emotion.toLowerCase() === prevEmotion2 ? ' selected' : ''}>${emotion}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            dialogueList.appendChild(entry);
+        }
+
+        function removeDialogueEntry(id) {
+            const entryToRemove = document.querySelector(`.dialogue-entry[data-dialogue-id="${id}"]`);
+            if (entryToRemove) {
+                entryToRemove.remove();
+            }
+            updateDialogueNumbers();
+        }
+
+        function updateDialogueNumbers() {
+            const dialogueEntries = document.querySelectorAll('.dialogue-entry');
+            dialogueEntries.forEach((entry, index) => {
+                const title = entry.querySelector('h3');
+                title.textContent = `Dialogue ${index + 1}:`;
+                entry.dataset.dialogueId = index + 1;
+            });
+            dialogueCounter = dialogueEntries.length;
+        }
+
+        function updateDialogueLabels() {
+            const dialogueEntries = document.querySelectorAll('.dialogue-entry');
+            const character1 = document.getElementById('character1-select').value;
+            const character2 = document.getElementById('character2-select').value;
+
+            dialogueEntries.forEach(entry => {
+                const labels = entry.querySelectorAll('label');
+                const selects = entry.querySelectorAll('select');
+                labels[0].textContent = `${character1} Dialogue:`;
+                labels[2].textContent = `${character2} Dialogue:`;
+
+                // Store the currently selected emotions
+                const currentEmotion1 = selects[0].value;
+                const currentEmotion2 = selects[1].value;
+
+                // Update emotion dropdowns
+                selects[0].innerHTML = emotions[character1].map(emotion => `<option value="${emotion.toLowerCase()}"${emotion.toLowerCase() === currentEmotion1 ? ' selected' : ''}>${emotion}</option>`).join('');
+                selects[1].innerHTML = emotions[character2].map(emotion => `<option value="${emotion.toLowerCase()}"${emotion.toLowerCase() === currentEmotion2 ? ' selected' : ''}>${emotion}</option>`).join('');
+            });
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        // Initial call to add the first entry
+        addDialogueEntry();
+    </script>
+</body>
+</html>
